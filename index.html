@@ -107,7 +107,10 @@
 
         .tile.red { background-color: var(--red-tile); }
         .tile.black { background-color: var(--black-tile); }
-        .tile.back { background: repeating-linear-gradient(45deg, #ccc, #ccc 10px, #bbb 10px, #bbb 20px); color: transparent; }
+        .tile.back { 
+            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px); 
+            color: transparent; 
+        }
 
         #status-message {
             text-align: center;
