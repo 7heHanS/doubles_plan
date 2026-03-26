@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>더블스 플랜 (Doubles Plan)</title>
+    <style>
+        :root {
+            --red-tile: #e74c3c;
+            --black-tile: #2c3e50;
+            --bg-color: #ecf0f1;
+            --card-width: 60px;
+            --card-height: 90px;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        #scoreboard {
+            display: flex;
+            gap: 20px;
+        }
+
+        .player-info {
+            text-align: center;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        #battle-area {
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            background: #f9f9f9;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .battle-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #player-hand, #opponent-info {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tile {
+            width: var(--card-width);
+            height: var(--card-height);
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .tile.red { background-color: var(--red-tile); }
+        .tile.black { background-color: var(--black-tile); }
+        .tile.back { background: repeating-linear-gradient(45deg, #ccc, #ccc 10px, #bbb 10px, #bbb 20px); color: transparent; }
+
+        #status-message {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #34495e;
+            min-height: 1.5em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            :root {
+                --card-width: 50px;
+                --card-height: 75px;
+            }
+            body { padding: 10px; }
+            #game-container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <div>
+                <h1 style="margin:0; font-size:1.2rem;">더블스 플랜</h1>
+                <span id="set-info">Set 1 / 4</span>
+            </div>
+            <div id="scoreboard">
+                <div class="player-info">
+                    <div>PLAYER</div>
+                    <div id="player-score" class="score">0</div>
+                </div>
+                <div class="player-info">
+                    <div>AI</div>
+                    <div id="ai-score" class="score">0</div>
+                </div>
+            </div>
+        </header>
+
+        <div id="status-message">게임을 시작하려면 '시작' 버튼을 누르세요.</div>
+
+        <div id="opponent-info">
+            <!-- AI cards remaining count or icons -->
+        </div>
+
+        <div id="battle-area">
+            <div class="battle-slot" id="ai-slot">
+                <span>AI</span>
+                <div id="ai-played-tile" class="tile back" style="visibility:hidden;">?</div>
+            </div>
+            <div class="battle-slot" id="player-slot">
+                <span>PLAYER</span>
+                <div id="player-played-tile" class="tile back" style="visibility:hidden;">?</div>
+            </div>
+        </div>
+
+        <div id="player-hand">
+            <!-- Tiles will be injected here -->
+        </div>
+
+        <div class="controls">
+            <button id="start-btn">게임 시작</button>
+            <button id="action-btn" style="display:none;">타일 제출</button>
+        </div>
+    </div>
+
+    <!-- Engine entry point -->
+    <script type="module" src="src/engine/gameEngine.js"></script>
+</body>
+</html>
