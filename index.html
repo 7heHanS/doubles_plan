@@ -3,202 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>더블스 플랜 (Doubles Plan)</title>
+    <title>DOUBLES PLAN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --red-tile: #e74c3c;
-            --black-tile: #2c3e50;
-            --bg-color: #ecf0f1;
-            --card-width: 60px;
-            --card-height: 90px;
+            --navy-bg: #0f172a;
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.4);
+            --red-tile: #b91c1c;
+            --black-tile: #1e293b;
+            --text-white: #f8fafc;
+            --card-w: 80px;
+            --card-h: 120px;
         }
 
         body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--navy-bg);
+            color: var(--text-white);
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 4px;
+            color: var(--gold);
+            text-shadow: 0 0 10px var(--gold-glow);
+            margin: 10px 0;
         }
 
         #game-container {
             width: 100%;
-            max-width: 800px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
+        /* Scoreboard */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: inset 0 0 15px var(--gold-glow);
+            margin-bottom: 30px;
         }
 
-        #scoreboard {
-            display: flex;
-            gap: 20px;
+        .player-info { text-align: center; }
+        .player-info div:first-child { 
+            font-family: 'Cinzel', serif; 
+            font-size: 0.9rem; 
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+        .score { 
+            font-size: 2.5rem; 
+            font-weight: 700; 
+            text-shadow: 0 0 10px var(--gold-glow);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .score.gain { transform: scale(1.3); color: #fbbf24; }
+
+        #set-info {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.1rem;
         }
 
-        .player-info {
-            text-align: center;
-        }
-
-        .score {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
+        /* Battle Area */
         #battle-area {
-            height: 200px;
+            height: 250px;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 40px;
-            background: #f9f9f9;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            position: relative;
+            gap: 60px;
+            perspective: 1000px;
+            margin-bottom: 30px;
+            background: radial-gradient(circle, rgba(30,41,59,1) 0%, rgba(15,23,42,1) 100%);
+            border-radius: 15px;
+            border: 1px inset rgba(212, 175, 55, 0.1);
         }
 
         .battle-slot {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
+        .battle-slot span { font-family: 'Cinzel', serif; color: var(--gold); font-size: 0.8rem; }
+
+        /* 3D Tile Component */
+        .tile-3d {
+            width: var(--card-w);
+            height: var(--card-h);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tile-3d.flipped { transform: rotateY(180deg); }
+
+        .tile-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tile-front {
+            background: linear-gradient(135deg, #475569, #1e293b);
+            transform: rotateY(180deg);
+        }
+        .tile-front.red { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .tile-front.black { background: linear-gradient(135deg, #334155, #0f172a); }
+
+        .tile-back {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid var(--gold);
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(212,175,55,0.05) 10px, rgba(212,175,55,0.05) 20px),
+                radial-gradient(circle at center, var(--gold-glow) 0%, transparent 70%);
+        }
+        .tile-back::after {
+            content: 'D';
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            opacity: 0.3;
+            font-size: 2rem;
+        }
+
+        /* Hand & Selection */
         #player-hand, #opponent-info {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
+            min-height: 50px;
         }
 
-        .tile {
-            width: var(--card-width);
-            height: var(--card-height);
+        .hand-tile {
+            width: 60px;
+            height: 90px;
             border-radius: 6px;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            user-select: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .tile:hover {
-            transform: translateY(-5px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .tile.red { background-color: var(--red-tile); }
-        .tile.black { background-color: var(--black-tile); }
-        .tile.back { 
-            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px); 
-            color: transparent; 
+        .hand-tile:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 15px var(--gold-glow);
         }
 
+        .hand-tile.red { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .hand-tile.black { background: linear-gradient(135deg, #334155, #0f172a); }
+
+        .opp-card-mini {
+            width: 30px;
+            height: 45px;
+            border-radius: 4px;
+            border: 1px solid var(--gold);
+            background: var(--navy-bg);
+            opacity: 0.7;
+        }
+        .opp-card-mini.red { background: var(--red-tile); }
+        .opp-card-mini.black { background: var(--black-tile); }
+
+        /* Controls */
         #status-message {
             text-align: center;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #34495e;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--gold);
+            margin-bottom: 30px;
             min-height: 1.5em;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
 
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
+        .controls { display: flex; justify-content: center; }
+        
+        #start-btn {
+            padding: 15px 40px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            background: linear-gradient(to bottom, #f59e0b, #d4af37);
+            color: var(--navy-bg);
             border: none;
-            border-radius: 5px;
-            background-color: #3498db;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        #start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px var(--gold-glow);
+        }
+
+        .draft-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
             cursor: pointer;
-            transition: background 0.2s;
+            font-family: 'Cinzel', serif;
+            transition: all 0.2s;
         }
+        .draft-btn:hover { transform: scale(1.1); filter: brightness(1.2); }
 
-        button:hover { background-color: #2980b9; }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            :root {
-                --card-width: 50px;
-                --card-height: 75px;
-            }
-            body { padding: 10px; }
-            #game-container { padding: 10px; }
+        /* Result Overlay Effect */
+        @keyframes flash {
+            0% { background: transparent; }
+            50% { background: rgba(212, 175, 55, 0.2); }
+            100% { background: transparent; }
         }
+        .flash-effect { animation: flash 0.5s ease-out; }
+
     </style>
 </head>
 <body>
+    <h1>DOUBLES PLAN</h1>
+    
     <div id="game-container">
         <header>
-            <div>
-                <h1 style="margin:0; font-size:1.2rem;">더블스 플랜</h1>
-                <span id="set-info">Set 1 / 4</span>
+            <div class="player-info">
+                <div>PLAYER</div>
+                <div id="player-score" class="score">0</div>
             </div>
-            <div id="scoreboard">
-                <div class="player-info">
-                    <div>PLAYER</div>
-                    <div id="player-score" class="score">0</div>
-                </div>
-                <div class="player-info">
-                    <div>AI</div>
-                    <div id="ai-score" class="score">0</div>
-                </div>
+            <div id="set-info">SET 1 / 4</div>
+            <div class="player-info">
+                <div>AI STRATEGIST</div>
+                <div id="ai-score" class="score">0</div>
             </div>
         </header>
 
-        <div id="status-message">게임을 시작하려면 '시작' 버튼을 누르세요.</div>
+        <div id="status-message">PREPARE FOR THE DUEL</div>
 
         <div id="opponent-info">
-            <!-- AI cards remaining count or icons -->
+            <!-- AI cards icons -->
         </div>
 
         <div id="battle-area">
-            <div class="battle-slot" id="ai-slot">
-                <span>AI</span>
-                <div id="ai-played-tile" class="tile back" style="visibility:hidden;">?</div>
+            <div class="battle-slot">
+                <span>AI STRATEGIST</span>
+                <div id="ai-tile-container" class="tile-3d" style="visibility:hidden;">
+                    <div class="tile-face tile-front" id="ai-tile-front">?</div>
+                    <div class="tile-face tile-back"></div>
+                </div>
             </div>
-            <div class="battle-slot" id="player-slot">
+            
+            <div class="battle-slot">
                 <span>PLAYER</span>
-                <div id="player-played-tile" class="tile back" style="visibility:hidden;">?</div>
+                <div id="player-tile-container" class="tile-3d" style="visibility:hidden;">
+                    <div class="tile-face tile-front" id="player-tile-front">?</div>
+                    <div class="tile-face tile-back"></div>
+                </div>
             </div>
         </div>
 
         <div id="player-hand">
-            <!-- Tiles will be injected here -->
+            <!-- Tiles -->
         </div>
 
         <div class="controls">
-            <button id="start-btn">게임 시작</button>
-            <button id="action-btn" style="display:none;">타일 제출</button>
+            <button id="start-btn">COMMENCE GAME</button>
         </div>
     </div>
 
-    <!-- Engine entry point -->
     <script type="module" src="src/engine/gameEngine.js"></script>
 </body>
 </html>
