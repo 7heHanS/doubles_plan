@@ -1,0 +1,24 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Dependencies (추후 번들러나 패키지 매니저 사용 시)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build Outputs
+dist/
+build/
+
+# Environment Variables & Secrets (개인정보 및 키 보호)
+.env
+.env.*
+secret.json
+credentials.json
+
+# Editor & IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
