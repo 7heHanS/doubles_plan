@@ -58,6 +58,7 @@ export class GameEngine {
         }
     }
 
+
     draftTile(color) {
         if (this.phase !== PHASES.DRAFTING) return false;
         
