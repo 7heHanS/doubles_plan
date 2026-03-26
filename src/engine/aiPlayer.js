@@ -50,27 +50,36 @@ export class AIPlayer {
         const myHand = this.player.hand;
         
         if (opponentPlayedTile) {
-            // AI is 2nd player: Know opponent's color (and number for simplicity in this version, 
-            // but rule says "Check color then submit")
-            // Actually rule says: "선 제출 -> 후 확인 후 제출". 
-            // Usually "확인" means seeing the color of the back.
-            
-            return this.bestResponse(opponentPlayedTile, myHand);
+            // AI is 2nd player: Only knows the COLOR of opponent's tile, not the number.
+            // Heuristic: Estimate possible numbers for that color and find best average response.
+            return this.bestProbabilisticResponse(opponentPlayedTile.color, myHand);
         } else {
-            // AI is 1st player: Submit based on expected value
+            // AI is 1st player: Submit based on internal strategy
             return this.proactivePlay(myHand);
         }
     }
 
-    bestResponse(oppTile, myHand) {
-        // Evaluate each tile in hand against the specific opponent tile
-        let bestTileIdx = 0;
-        let bestResult = -999;
+    bestProbabilisticResponse(oppColor, myHand) {
+        // Find possible numbers the opponent could have for this color
+        // Based on ALL_TILES minus what AI has and what opponent already revealed/played
+        const possibleOpponentTiles = ALL_TILES.filter(t => 
+            t.color === oppColor && 
+            !this.player.hand.some(myT => myT.number === t.number) &&
+            !this.opponentPlayedTiles.some(pT => pT.number === t.number)
+        );
 
-        myHand.forEach((tile, index) => {
-            const score = this.evaluateMatchup(tile, oppTile);
-            if (score > bestResult) {
-                bestResult = score;
+        let bestTileIdx = 0;
+        let maxExpectedValue = -999;
+
+        myHand.forEach((myTile, index) => {
+            let totalScore = 0;
+            possibleOpponentTiles.forEach(oppT => {
+                totalScore += this.evaluateMatchup(myTile, oppT);
+            });
+            
+            const ev = totalScore / (possibleOpponentTiles.length || 1);
+            if (ev > maxExpectedValue) {
+                maxExpectedValue = ev;
                 bestTileIdx = index;
             }
         });

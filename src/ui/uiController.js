@@ -75,9 +75,9 @@ export class UIController {
 
     renderOpponentInfo() {
         this.opponentInfo.innerHTML = '';
-        this.game.ai.hand.forEach(() => {
+        this.game.ai.hand.forEach((tile) => {
             const div = document.createElement('div');
-            div.className = 'tile back';
+            div.className = `tile back ${tile.color}`;
             div.style.width = '30px';
             div.style.height = '45px';
             this.opponentInfo.appendChild(div);
