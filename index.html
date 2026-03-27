@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>더블즈 플랜 - Doubles Plan</title>
+    <meta name="description" content="더블즈 플랜 - 1인용 심리 전략 카드 게임. 교대 드래프트와 비동기 순차 대결로 AI 전략가에 도전하세요.">
     <!-- Pretendard (한국어) 폰트 지원 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <style>
@@ -16,14 +17,14 @@
             --gold-glow: rgba(245, 158, 11, 0.6);
             --red-tile: #dc2626;
             --black-tile: #171717;
-            --border-gray: #52525b; /* 검은색 카드에 적용될 얇은 회색 테두리 */
+            --border-gray: #52525b;
             --text-white: #f8fafc;
             
             /* 카드 크기 비율 조정 */
             --card-w: 80px; 
             --card-h: 120px;
-            --hand-card-w: 120px; /* 플레이어 덱 터치성을 위한 가로 1.5배 크기 */
-            --hand-card-h: 180px; /* 플레이어 덱 터치성을 위한 세로 1.5배 크기 */
+            --hand-card-w: 120px;
+            --hand-card-h: 180px;
         }
 
         * {
@@ -31,20 +32,19 @@
             transition: all 0.3s ease;
         }
 
-        /* 3. 반응형 100dvh 레이아웃 설정 */
         body {
             font-family: 'Pretendard Variable', 'Noto Sans KR', sans-serif;
             background: radial-gradient(circle at top, #155e32 0%, #052411 100%);
-            background-color: var(--primary-bg); /* 폴백 */
+            background-color: var(--primary-bg);
             color: var(--text-white);
             margin: 0;
             padding: 1dvh 2vw;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100dvh; /* 최소 높이 확보 */
+            min-height: 100dvh;
             overflow-x: hidden;
-            overflow-y: auto; /* 내용이 넘치면 스크롤 허용 */
+            overflow-y: auto;
         }
 
         h1 {
@@ -68,16 +68,14 @@
                 0 40px 80px rgba(0,0,0,0.8),
                 inset 0 4px 30px rgba(0,0,0,0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            
-            /* 내부 컴포넌트들을 비율에 맞게 분할하기 위해 flex-grow 활용 */
             display: flex;
             flex-direction: column;
             flex-grow: 1;
-            justify-content: flex-start; /* 간격 조절을 위해 flex-start로 변경 */
+            justify-content: flex-start;
             gap: 1dvh;
         }
 
-        /* Scoreboard */
+        /* ─── Scoreboard ─── */
         header {
             display: flex;
             justify-content: space-between;
@@ -114,6 +112,13 @@
             text-shadow: 0 0 30px var(--gold);
         }
 
+        .set-round-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
         #set-info {
             color: var(--gold);
             font-size: clamp(1rem, 2vh, 1.4rem);
@@ -124,7 +129,18 @@
             border: 1px solid var(--gold-glow);
         }
 
-        /* Controls & Messages 통합 구역 */
+        #round-info {
+            color: var(--text-white);
+            font-size: clamp(0.85rem, 1.5vh, 1.1rem);
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: none;
+        }
+
+        /* ─── Controls & Messages ─── */
         #top-info-area {
             display: flex;
             flex-direction: column;
@@ -144,7 +160,7 @@
         }
 
         #opponent-info {
-            display: flex;
+            display: none;
             justify-content: center;
             gap: 15px;
             min-height: 65px;
@@ -160,7 +176,6 @@
             box-shadow: 0 8px 15px rgba(0,0,0,0.4);
         }
         
-        /* 상대방 카드의 색상 구분을 위한 CSS 필수! */
         .opp-card-mini.red { 
             background: var(--red-tile);
             border-color: rgba(255,255,255,0.4);
@@ -170,14 +185,79 @@
             border-color: var(--border-gray);
         }
 
-        /* Battle Area -> 넓은 화면의 남는 공간을 모두 흡수하도록 flex-grow */
+        /* ─── Draft Board ─── */
+        #draft-board {
+            display: none;
+            flex-direction: column;
+            gap: 1.5dvh;
+            padding: 2dvh 3vw;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+        }
+
+        .draft-board-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .draft-board-label {
+            font-size: clamp(0.85rem, 1.5vh, 1.1rem);
+            font-weight: 700;
+            color: var(--gold);
+            min-width: 110px;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .draft-board-slots {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .draft-slot {
+            width: 42px;
+            height: 58px;
+            border-radius: 6px;
+            border: 2px dashed rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .draft-slot.filled {
+            border-style: solid;
+            animation: draft-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .draft-slot.filled.red {
+            background: var(--red-tile);
+            border-color: rgba(255,255,255,0.4);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+
+        .draft-slot.filled.black {
+            background: var(--black-tile);
+            border-color: var(--border-gray);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        @keyframes draft-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ─── Battle Area ─── */
         #battle-area {
             flex-grow: 1; 
-            display: flex;
-            justify-content: space-evenly; /* 양옆 공간 균등 분할로 중앙 쏠림 현상 방지 */
+            display: none;
+            justify-content: space-evenly;
             align-items: center;
             width: 100%;
-            gap: 2vw; /* space-evenly 적용 시 gap은 최소화 가능 */
+            gap: 2vw;
             perspective: 1500px;
             background: rgba(0, 0, 0, 0.25);
             border-radius: 16px;
@@ -185,7 +265,7 @@
             box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
             margin: 1dvh 0;
-            min-height: 180px; /* 배틀 영역 최소 높이 축소 */
+            min-height: 180px;
         }
 
         #battle-area::before {
@@ -206,8 +286,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 1; /* 양쪽 슬롯이 동일한 너비를 강제로 차지하게 하여 진짜 중앙 정렬 확보 */
-            max-width: 200px; /* 슬롯 너비 제한으로 텍스트 겹침 방지 */
+            flex: 1;
+            max-width: 200px;
             gap: 1dvh;
             z-index: 1;
         }
@@ -222,7 +302,7 @@
             border: 1px solid var(--gold-glow);
         }
 
-        /* 3D Tile Component */
+        /* ─── 3D Tile Component ─── */
         .tile-3d {
             width: var(--card-w);
             height: var(--card-h);
@@ -261,7 +341,7 @@
         
         .tile-front.black { 
             background: var(--black-tile);
-            border: 2px solid var(--border-gray); /* 검정 타일 구분을 위한 얇은 회색선 */
+            border: 2px solid var(--border-gray);
         }
 
         .tile-back {
@@ -269,6 +349,17 @@
             border: 2px solid var(--border-gray); 
             position: relative;
             overflow: hidden;
+        }
+
+        /* 뒷면 색상 표시: 빨강/검정 구분 */
+        .tile-back.red {
+            background: var(--red-tile);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .tile-back.black {
+            background: var(--black-tile);
+            border-color: var(--border-gray);
         }
         
         .tile-back::after {
@@ -281,26 +372,28 @@
             font-weight: bold;
         }
 
-        /* 4. Player Hand 영역 1.5배 스케일업 & 터치 간격 향상 */
+        /* ─── Player Hand ─── */
         #player-hand {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px; /* 간격 축소 */
+            gap: 20px;
             min-height: calc(var(--hand-card-h) + 20px); 
             flex-shrink: 0;
             padding-bottom: 2dvh;
-            flex-wrap: wrap; /* 오버플로우 대비 */
+            flex-wrap: wrap;
+            transition: opacity 0.3s ease;
         }
 
         .hand-tile, .draft-btn {
-            width: var(--hand-card-w); /* 기존 대비 1.5배 */
-            height: var(--hand-card-h); /* 기존 대비 1.5배 */
+            width: var(--hand-card-w);
+            height: var(--hand-card-h);
             border-radius: 12px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 3rem; /* 텍스트 크기도 확장 */
+            font-size: 3rem;
             font-weight: 800;
             cursor: pointer;
             box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -315,6 +408,17 @@
             border-radius: 12px;
             padding: 0; 
             border: 2px solid var(--gold);
+            gap: 8px;
+        }
+
+        .draft-counter {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
         }
 
         .hand-tile:hover, .draft-btn:hover {
@@ -333,14 +437,14 @@
             border: 2px solid var(--border-gray);
         }
 
-        /* 하단 컨트롤 레이아웃 정렬 */
+        /* ─── Controls ─── */
         .controls { 
             display: flex; 
             justify-content: center; 
             flex-shrink: 0;
             min-height: 60px;
             align-items: center;
-            width: 100%; /* 하단 플레이어 컨트롤 정중앙 강제 */
+            width: 100%;
         }
         
         #start-btn {
@@ -362,7 +466,48 @@
             background: #fff;
         }
 
-        /* 5. 좁은 화면(Z Fold 외부 디스플레이 등) 대응 */
+        /* ─── Toast Notifications ─── */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast-message {
+            background: rgba(0, 0, 0, 0.85);
+            color: var(--gold);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: clamp(1rem, 2vh, 1.3rem);
+            font-weight: 700;
+            border: 1px solid var(--gold-glow);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6), 0 0 20px var(--gold-glow);
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .toast-message.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .toast-message.hide {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.9);
+        }
+
+        /* ─── Responsive: 좁은 화면 (Z Fold 외부 등) ─── */
         @media (max-width: 480px) {
             :root {
                 --hand-card-w: 90px;
@@ -390,9 +535,17 @@
             .hand-tile, .draft-btn {
                 font-size: 2rem;
             }
+            .draft-board-label {
+                min-width: 80px;
+                font-size: 0.8rem;
+            }
+            .draft-slot {
+                width: 34px;
+                height: 48px;
+            }
         }
 
-        /* 6. 세로가 짧은 화면 대응 (Z Fold 내부 디스플레이 등) */
+        /* ─── Responsive: 세로가 짧은 화면 ─── */
         @media (max-height: 700px) {
             :root {
                 --hand-card-w: 80px;
@@ -411,7 +564,7 @@
             }
         }
 
-        /* Animations */
+        /* ─── Animations ─── */
         @keyframes gain-score {
             0% { transform: scale(1); filter: brightness(1); }
             50% { transform: scale(1.4); filter: brightness(1.5); }
@@ -422,7 +575,6 @@
     </style>
 </head>
 <body>
-    <!-- 2. 게임 요소의 온전한 한국어화 -->
     <h1>더블즈 플랜</h1>
     
     <div id="game-container">
@@ -431,7 +583,10 @@
                 <div>플레이어</div>
                 <div id="player-score" class="score">0</div>
             </div>
-            <div id="set-info">1세트 / 4</div>
+            <div class="set-round-info">
+                <div id="set-info">1세트 / 4</div>
+                <div id="round-info"></div>
+            </div>
             <div class="player-info">
                 <div>인공지능 전략가</div>
                 <div id="ai-score" class="score">0</div>
@@ -441,13 +596,26 @@
         <div id="top-info-area">
             <div id="status-message">대결을 준비하세요</div>
             <div id="opponent-info">
-                <!-- AI cards icons -->
+                <!-- AI cards icons (배틀 페이즈에서만 표시) -->
             </div>
         </div>
 
+        <!-- 드래프트 보드: 양측 픽 현황 (드래프트 페이즈에서만 표시) -->
+        <div id="draft-board">
+            <div class="draft-board-row">
+                <span class="draft-board-label">플레이어</span>
+                <div id="draft-board-human" class="draft-board-slots"></div>
+            </div>
+            <div class="draft-board-row">
+                <span class="draft-board-label">인공지능 전략가</span>
+                <div id="draft-board-ai" class="draft-board-slots"></div>
+            </div>
+        </div>
+
+        <!-- 배틀 영역 (배틀 페이즈에서만 표시) -->
         <div id="battle-area">
             <div class="battle-slot">
-                <span>인공지능 전략가</span>
+                <span id="ai-slot-label">인공지능 전략가</span>
                 <div id="ai-tile-container" class="tile-3d" style="visibility:hidden;">
                     <div class="tile-face tile-front" id="ai-tile-front">?</div>
                     <div class="tile-face tile-back"></div>
@@ -455,7 +623,7 @@
             </div>
             
             <div class="battle-slot">
-                <span>플레이어</span>
+                <span id="player-slot-label">플레이어</span>
                 <div id="player-tile-container" class="tile-3d" style="visibility:hidden;">
                     <div class="tile-face tile-front" id="player-tile-front">?</div>
                     <div class="tile-face tile-back"></div>
@@ -464,13 +632,16 @@
         </div>
 
         <div id="player-hand">
-            <!-- Tiles -->
+            <!-- Tiles / Draft buttons -->
         </div>
 
         <div class="controls">
             <button id="start-btn">게임 시작</button>
         </div>
     </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
 
     <script type="module" src="src/engine/gameEngine.js"></script>
 </body>

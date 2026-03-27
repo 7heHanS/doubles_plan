@@ -12,24 +12,34 @@ export class AIPlayer {
         this.opponentPlayedTiles = []; // Tiles opponent already played
     }
 
-    // Phase 1: Block Selection (Drafting)
-    // Drafting logic for AI: Prefer tiles that can create Double/Reverse synergy
-    selectDraftTiles(deck) {
-        const redTiles = deck.filter(t => t.color === 'red');
-        const blackTiles = deck.filter(t => t.color === 'black');
+    resetForNewSet() {
+        this.opponentHandColors = [];
+        this.opponentPlayedTiles = [];
+    }
 
-        // Simple heuristic: Try to pick numbers that have double/half relations
-        const selected = [];
+    // ─── 교대 드래프트: 1장씩 선택 ─────────────────────────
+    selectOneDraftTile(deck, currentAIHand, limits) {
+        // 가능한 색상 결정
+        const canRed = limits.canPickRed && deck.some(t => t.color === 'red');
+        const canBlack = limits.canPickBlack && deck.some(t => t.color === 'black');
 
-        // Select 3 Reds
-        this.shuffle(redTiles);
-        for(let i=0; i<3; i++) selected.push(redTiles[i]);
-
-        // Select 2 Blacks
-        this.shuffle(blackTiles);
-        for(let i=0; i<2; i++) selected.push(blackTiles[i]);
-
-        return selected;
+        if (canRed && canBlack) {
+            // 전략적 선택: 더블/역전 시너지를 고려한 휴리스틱
+            // 빨강(3~9 중간 숫자)과 검정(1,2,10,11,12 극단 숫자)의 균형
+            const redRemaining = 3 - limits.redCount;
+            const blackRemaining = 2 - limits.blackCount;
+            
+            // 남은 필수 픽 비율에 따라 우선 선택
+            if (blackRemaining > 0 && Math.random() < 0.4) {
+                return 'black';
+            }
+            return 'red';
+        } else if (canRed) {
+            return 'red';
+        } else if (canBlack) {
+            return 'black';
+        }
+        return 'red'; // fallback
     }
 
     shuffle(array) {
@@ -48,15 +58,33 @@ export class AIPlayer {
         }
     }
 
-    // Phase 3: Tile Play (Decision Making)
-    decideTileToPlay(opponentPlayedTile = null) {
+    // ─── 배틀: AI가 선공일 때 (먼저 제출) ──────────────────
+    decideFirstSubmit() {
         const myHand = this.player.hand;
+        // 선공은 상대 카드를 모르므로 전략적 proactive play
+        // 중간 가치 카드를 우선 사용하는 전략
+        if (myHand.length <= 1) return 0;
 
-        if (opponentPlayedTile) {
-            return this.bestProbabilisticResponse(opponentPlayedTile.color, myHand);
-        } else {
-            return this.proactivePlay(myHand);
-        }
+        let bestIdx = 0;
+        let bestScore = -Infinity;
+
+        myHand.forEach((tile, idx) => {
+            // 중간 숫자를 선호 (극단값은 후반 보유)
+            const midScore = -Math.abs(tile.number - 6.5);
+            // 약간의 랜덤성 추가
+            const score = midScore + (Math.random() * 2 - 1);
+            if (score > bestScore) {
+                bestScore = score;
+                bestIdx = idx;
+            }
+        });
+
+        return bestIdx;
+    }
+
+    // ─── 배틀: AI가 후공일 때 (상대 색상 확인 후 대응) ───────
+    decideResponseSubmit(opponentColor) {
+        return this.bestProbabilisticResponse(opponentColor, this.player.hand);
     }
 
     bestProbabilisticResponse(oppColor, myHand) {
@@ -83,10 +111,6 @@ export class AIPlayer {
         });
 
         return bestTileIdx;
-    }
-
-    proactivePlay(myHand) {
-        return Math.floor(Math.random() * myHand.length);
     }
 
     evaluateMatchup(myTile, oppTile) {
