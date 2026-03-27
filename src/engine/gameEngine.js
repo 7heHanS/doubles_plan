@@ -32,6 +32,7 @@ export class GameEngine {
 
         // 비동기 순차 배틀 상태
         this.battleTurn = null;
+        this.roundFirstPlayer = null;  // 이번 라운드의 선공 ('human' or 'ai')
         this.pendingFirstTile = null;  // 선공이 제출한 카드
         this.pendingFirstPlayer = null; // 먼저 제출한 쪽 ('human' or 'ai')
     }
@@ -128,7 +129,8 @@ export class GameEngine {
         // 드래프트 완료 체크 (총 10픽)
         if (this.draftCount >= 10) {
             this.phase = PHASES.BATTLE;
-            this.battleTurn = this.firstPlayer;
+            this.roundFirstPlayer = this.firstPlayer;
+            this.battleTurn = this.roundFirstPlayer;
             this.pendingFirstTile = null;
             this.pendingFirstPlayer = null;
             // AI에게 플레이어 타일 색상 정보 제공
@@ -198,8 +200,10 @@ export class GameEngine {
         if (this.currentRound > 5) {
             this.endSet();
         } else {
-            // 다음 라운드도 세트 선공이 먼저
-            this.battleTurn = this.firstPlayer;
+            // [신규 룰] 라운드 선공 교대: 홀수 라운드=세트 선공, 짝수 라운드=상대방
+            const opponent = this.firstPlayer === 'human' ? 'ai' : 'human';
+            this.roundFirstPlayer = (this.currentRound % 2 === 1) ? this.firstPlayer : opponent;
+            this.battleTurn = this.roundFirstPlayer;
         }
 
         return {

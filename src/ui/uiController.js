@@ -285,15 +285,15 @@ export class UIController {
         this.resetSlots();
         this.updateRoundDisplay();
 
-        const firstPlayer = this.game.firstPlayer;
+        const firstPlayer = this.game.roundFirstPlayer;
 
         if (firstPlayer === 'human') {
             // 플레이어가 선공 → 플레이어 카드 먼저 제출
-            this.updateStatus(`[라운드 ${this.game.currentRound}/5] 플레이어 선공 — 카드를 제출하세요`);
+            this.updateStatus(`[라운드 ${this.game.currentRound}/5] 🟢 플레이어 선공 — 카드를 제출하세요`);
             this.renderHand(true); // 활성화
         } else {
             // AI가 선공 → AI 먼저 제출
-            this.updateStatus(`[라운드 ${this.game.currentRound}/5] 인공지능 전략가 선공 — 카드 제출 중...`);
+            this.updateStatus(`[라운드 ${this.game.currentRound}/5] 🔴 인공지능 전략가 선공 — 카드 제출 중...`);
             this.renderHand(false); // 비활성화
             this.handleAIFirstSubmit();
         }
@@ -340,7 +340,6 @@ export class UIController {
         if (this.game.phase !== 'BATTLE' || this.isProcessing) return;
         this.lockInput();
 
-        const firstPlayer = this.game.firstPlayer;
         const battleTurn = this.game.battleTurn;
 
         if (battleTurn !== 'human') return;
