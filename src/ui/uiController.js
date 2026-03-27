@@ -32,21 +32,21 @@ export class UIController {
         this.statusMsg.innerText = msg;
     }
 
+    // 드래프트 상태 메세지 한국어화
     renderDrafting() {
-        this.updateStatus('SELECT YOUR BATTALION (3 RED, 2 BLACK)');
+        this.updateStatus('타일을 선택하세요 (빨강 3, 검정 2)');
         this.playerHand.innerHTML = '';
         this.resetSlots();
         
         const colors = [
-            { name: 'RED', color: 'red', limit: 3 },
-            { name: 'BLACK', color: 'black', limit: 2 }
+            { name: '빨강', color: 'red', limit: 3 },
+            { name: '검정', color: 'black', limit: 2 }
         ];
 
         colors.forEach(c => {
             const btn = document.createElement('button');
             btn.innerText = `${c.name}`;
             btn.className = `draft-btn ${c.color}`;
-            btn.style.backgroundColor = `var(--${c.color}-tile)`;
             btn.style.margin = '0 10px';
             btn.onclick = () => {
                 const currentCount = this.game.player.hand.filter(t => t.color === c.color).length;
@@ -64,10 +64,10 @@ export class UIController {
         const rCount = p.hand.filter(t => t.color === 'red').length;
         const bCount = p.hand.filter(t => t.color === 'black').length;
         
-        this.updateStatus(`COMMAND: RED(${rCount}/3), BLACK(${bCount}/2)`);
+        this.updateStatus(`선택 완료 현황: 빨강(${rCount}/3), 검정(${bCount}/2)`);
             
         if (rCount === 3 && bCount === 2) {
-            this.updateStatus('DRAFT COMPLETE. PREPARE TO FIGHT.');
+            this.updateStatus('선택 완료. 대결을 준비하세요.');
             this.renderHand();
             this.renderOpponentInfo();
         }
@@ -77,6 +77,7 @@ export class UIController {
         this.opponentInfo.innerHTML = '';
         this.game.ai.hand.forEach((tile) => {
             const div = document.createElement('div');
+            // 상대 카드에는 무조건 뒷면이 표시되므로 CSS 처리를 위해 클래스 부여
             div.className = `opp-card-mini ${tile.color}`;
             this.opponentInfo.appendChild(div);
         });
@@ -116,7 +117,6 @@ export class UIController {
         const aiIdx = this.game.aiStrategy.decideTileToPlay(playerTile);
         const aiTile = this.game.ai.removeTile(aiIdx);
         
-        // 1. 카드를 뒷면 상태로 슬롯에 배치 (flipped 클래스 없음)
         this.setupTileFace(this.playerTileFront, playerTile);
         this.setupTileFace(this.aiTileFront, aiTile);
         
@@ -125,22 +125,22 @@ export class UIController {
         this.playerSlot.classList.remove('flipped');
         this.aiSlot.classList.remove('flipped');
 
-        this.updateStatus('ANALYZING STRATEGIES...');
+        this.updateStatus('전략 분석 중...');
         this.playerHand.style.pointerEvents = 'none';
 
+        // 카드 딜레이 애니메이션 시간
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // 2. 카드 뒤집기 애니메이션 실행
         this.playerSlot.classList.add('flipped');
         this.aiSlot.classList.add('flipped');
 
         const result = this.game.resolveRound(playerTile, aiTile);
         
-        // 3. 점수 획득 연출
         await new Promise(resolve => setTimeout(resolve, 600));
         this.triggerScoreAnimation(result.winner);
         
-        let msg = `${result.winner === 'p1' ? 'VICTORY' : result.winner === 'p2' ? 'DEFEAT' : 'STALEMATE'}`;
+        // 결과 메세지의 한글화 적용
+        let msg = `${result.winner === 'p1' ? '승리' : result.winner === 'p2' ? '패배' : '무승부'}`;
         if (result.winner) msg += ` - ${this.getWinTypeText(result.winType)} (+${result.points})`;
         this.updateStatus(msg);
 
@@ -171,7 +171,9 @@ export class UIController {
     triggerScoreAnimation(winner) {
         this.playerScore.innerText = this.game.player.totalScore;
         this.aiScore.innerText = this.game.ai.totalScore;
-        this.setInfo.innerText = `SET ${this.game.currentSet} / 4`;
+        
+        // 정규식 대신 백틱 포맷으로 세트 수 한글 표시 반영
+        this.setInfo.innerText = `${this.game.currentSet}세트 / 4`;
 
         if (winner === 'p1') {
             this.playerScore.classList.add('gain');
@@ -192,16 +194,18 @@ export class UIController {
         this.aiSlot.classList.remove('flipped');
     }
 
+    // 판정 한글화 기준 테이블
     getWinTypeText(type) {
-        const types = { 'double': 'DOUBLE', 'comeback': 'REVERSAL', 'basic': 'BASIC' };
-        return types[type] || 'WIN';
+        const types = { 'double': '더블', 'comeback': '역전', 'basic': '일반' };
+        return types[type] || '승리';
     }
 
+    // 게임 종료 로직 한글화
     showGameOver() {
         const pScore = this.game.player.totalScore;
         const aiScore = this.game.ai.totalScore;
-        const winner = pScore > aiScore ? 'PLAYER' : (pScore < aiScore ? 'AI' : 'DRAW');
-        this.updateStatus(`WAR CONCLUDED. FINAL VICTOR: ${winner}`);
+        const winner = pScore > aiScore ? '플레이어' : (pScore < aiScore ? '인공지능 전략가' : '무승부');
+        this.updateStatus(`전투 종료. 최종 승자: ${winner}`);
         setTimeout(() => location.reload(), 5000);
     }
 }

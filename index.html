@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOUBLES PLAN</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <title>더블즈 플랜 - Doubles Plan</title>
+    <!-- Pretendard (한국어) 폰트 지원 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <style>
         :root {
-            --primary-bg: #1e293b;
-            --game-board: #2d3748;
-            --scoreboard-bg: #0f172a;
-            --gold: #fbbf24;
-            --gold-glow: rgba(251, 191, 36, 0.6);
-            --red-tile: #ef4444;
-            --slate-gray: #475569;
+            /* 1. 카지노/포커 고급 테마 팔레트 */
+            --primary-bg: #0a3a22; /* 딥 포커 그린 */
+            --game-board: #0d4a2b; /* 보드 테이블 그린 */
+            --scoreboard-bg: #1a1a1a;
+            --gold: #f59e0b;
+            --gold-glow: rgba(245, 158, 11, 0.6);
+            --red-tile: #dc2626;
+            --black-tile: #171717;
+            --border-gray: #52525b; /* 검은색 카드에 적용될 얇은 회색 테두리 */
             --text-white: #f8fafc;
-            --card-w: 80px;
+            
+            /* 카드 크기 비율 조정 */
+            --card-w: 80px; 
             --card-h: 120px;
+            --hand-card-w: 120px; /* 플레이어 덱 터치성을 위한 가로 1.5배 크기 */
+            --hand-card-h: 180px; /* 플레이어 덱 터치성을 위한 세로 1.5배 크기 */
         }
 
         * {
@@ -24,40 +31,48 @@
             transition: all 0.3s ease;
         }
 
+        /* 3. 반응형 100dvh 레이아웃 설정 */
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--primary-bg);
+            font-family: 'Pretendard Variable', 'Noto Sans KR', sans-serif;
+            background: radial-gradient(circle at top, #155e32 0%, #052411 100%);
+            background-color: var(--primary-bg); /* 폴백 */
             color: var(--text-white);
             margin: 0;
-            padding: 20px;
+            padding: 2dvh 2vw;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100dvh; /* 모바일 브라우저 탭 간섭 해결 */
+            overflow: hidden; 
         }
 
         h1 {
-            font-family: 'Cinzel', serif;
-            letter-spacing: 6px;
+            font-weight: 800;
             color: var(--gold);
-            text-shadow: 0 0 20px var(--gold-glow);
-            margin: 20px 0;
-            font-size: 3rem;
+            text-shadow: 0 0 15px var(--gold-glow);
+            margin: 1dvh 0;
+            font-size: clamp(2rem, 4vh, 3rem);
             text-align: center;
+            width: 100%;
+            flex-shrink: 0;
         }
 
         #game-container {
             width: 100%;
             max-width: 960px;
-            background: var(--game-board);
-            padding: 40px;
-            border-radius: 32px;
+            background: radial-gradient(circle at center, #125e36 0%, #0b381f 100%);
+            padding: 3dvh 3vw;
+            border-radius: 24px;
             box-shadow: 
-                0 40px 80px rgba(0,0,0,0.7),
-                inset 0 4px 20px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
+                0 40px 80px rgba(0,0,0,0.8),
+                inset 0 4px 30px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            /* 내부 컴포넌트들을 비율에 맞게 분할하기 위해 flex-grow 활용 */
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between;
         }
 
         /* Scoreboard */
@@ -65,27 +80,29 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 25px 50px;
-            border: 3px solid var(--gold);
-            border-radius: 24px;
+            padding: 1.5dvh 3vw;
+            border: 2px solid var(--gold);
+            border-radius: 16px;
             background: var(--scoreboard-bg);
             box-shadow: 
-                0 0 30px var(--gold-glow),
+                0 0 20px var(--gold-glow),
                 inset 0 0 10px rgba(0,0,0,0.8);
-            margin-bottom: 40px;
+            flex-shrink: 0;
         }
 
-        .player-info { text-align: center; }
+        .player-info { 
+            flex: 1; 
+            text-align: center; 
+        }
         .player-info div:first-child { 
-            font-family: 'Cinzel', serif; 
-            font-size: 1.1rem; 
+            font-size: clamp(1.1rem, 2vh, 1.4rem); 
             color: var(--gold);
-            margin-bottom: 8px;
-            letter-spacing: 2px;
+            margin-bottom: 4px;
+            font-weight: 700;
         }
         .score { 
-            font-size: 3.5rem; 
-            font-weight: 700; 
+            font-size: clamp(2rem, 4vh, 3.5rem); 
+            font-weight: 800; 
             text-shadow: 0 0 15px var(--gold-glow);
             color: var(--text-white);
         }
@@ -96,56 +113,110 @@
         }
 
         #set-info {
-            font-family: 'Cinzel', serif;
             color: var(--gold);
-            font-size: 1.4rem;
+            font-size: clamp(1rem, 2vh, 1.4rem);
             font-weight: 700;
-            padding: 10px 20px;
-            border-radius: 12px;
+            padding: 8px 16px;
+            border-radius: 8px;
             background: rgba(0,0,0,0.4);
             border: 1px solid var(--gold-glow);
         }
 
-        /* Battle Area */
-        #battle-area {
-            height: 300px;
+        /* Controls & Messages 통합 구역 */
+        #top-info-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        #status-message {
+            text-align: center;
+            font-size: clamp(1.2rem, 2.5vh, 1.8rem);
+            color: var(--gold);
+            margin: 1.5dvh 0;
+            min-height: 1.5em;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.9);
+            font-weight: 700;
+        }
+
+        #opponent-info {
             display: flex;
             justify-content: center;
+            gap: 15px;
+            min-height: 65px;
+        }
+
+        .opp-card-mini {
+            width: 45px;
+            height: 65px;
+            border-radius: 6px;
+            border: 2px solid var(--gold);
+            background: var(--black-tile);
+            opacity: 0.8;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+        }
+        
+        /* 상대방 카드의 색상 구분을 위한 CSS 필수! */
+        .opp-card-mini.red { 
+            background: var(--red-tile);
+            border-color: rgba(255,255,255,0.4);
+        }
+        .opp-card-mini.black { 
+            background: var(--black-tile);
+            border-color: var(--border-gray);
+        }
+
+        /* Battle Area -> 넓은 화면의 남는 공간을 모두 흡수하도록 flex-grow */
+        #battle-area {
+            flex-grow: 1; 
+            display: flex;
+            justify-content: space-evenly; /* 양옆 공간 균등 분할로 중앙 쏠림 현상 방지 */
             align-items: center;
-            gap: 100px;
+            width: 100%;
+            gap: 2vw; /* space-evenly 적용 시 gap은 최소화 가능 */
             perspective: 1500px;
-            margin-bottom: 40px;
-            background: rgba(15, 23, 42, 0.3);
-            border-radius: 24px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
             position: relative;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin: 2dvh 0;
+            min-height: 0; 
         }
 
         #battle-area::before {
             content: 'VS';
             position: absolute;
-            font-family: 'Cinzel', serif;
-            font-size: 4rem;
-            color: rgba(251, 191, 36, 0.05);
-            font-weight: 700;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(4rem, 10vh, 7rem);
+            color: rgba(245, 158, 11, 0.15);
+            font-weight: 800;
+            font-style: italic;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .battle-slot {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            flex: 1; /* 양쪽 슬롯이 동일한 너비를 강제로 차지하게 하여 진짜 중앙 정렬 확보 */
+            max-width: 280px;
+            gap: 1.5dvh;
             z-index: 1;
         }
 
         .battle-slot span { 
-            font-family: 'Cinzel', serif; 
             color: var(--gold); 
-            font-size: 1rem; 
-            letter-spacing: 1.5px;
-            padding: 4px 12px;
+            font-size: clamp(1.2rem, 2.5vh, 1.8rem); 
+            font-weight: 800;
+            padding: 8px 18px;
             background: var(--scoreboard-bg);
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid var(--gold-glow);
         }
 
@@ -165,13 +236,13 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 14px;
+            border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.5rem;
-            font-weight: 700;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            font-size: 2rem;
+            font-weight: 800;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             border: 2px solid var(--gold);
         }
 
@@ -187,109 +258,104 @@
         }
         
         .tile-front.black { 
-            background: var(--slate-gray);
-            border-color: var(--gold);
+            background: var(--black-tile);
+            border: 2px solid var(--border-gray); /* 검정 타일 구분을 위한 얇은 회색선 */
         }
 
         .tile-back {
-            background: var(--slate-gray);
-            border: 2px solid var(--gold);
+            background: var(--black-tile);
+            border: 2px solid var(--border-gray); 
             position: relative;
             overflow: hidden;
         }
         
         .tile-back::after {
             content: 'D';
-            font-family: 'Cinzel', serif;
+            font-family: serif;
             color: var(--gold);
-            font-size: 3rem;
+            font-size: 2.5rem;
             filter: drop-shadow(0 0 10px var(--gold));
             opacity: 0.8;
+            font-weight: bold;
         }
 
-        /* Hand & Selection */
-        #player-hand, #opponent-info {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin-bottom: 40px;
-            min-height: 130px;
-            align-items: flex-end;
-        }
-
-        .hand-tile {
-            width: var(--card-w);
-            height: var(--card-h);
-            border-radius: 14px;
+        /* 4. Player Hand 영역 1.5배 스케일업 & 터치 간격 향상 */
+        #player-hand {
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            border: 2px solid var(--gold);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            color: var(--text-white);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-            transform: translateY(0);
+            gap: 40px; /* 타일 간격을 넓혀 터치 접근성 상향 */
+            min-height: calc(var(--hand-card-h) + 30px); /* 공간 확보 */
+            flex-shrink: 0;
+            padding-bottom: 2dvh;
+            flex-wrap: wrap; /* 오버플로우 대비 */
         }
 
-        .hand-tile:hover {
-            transform: translateY(-25px) scale(1.15) rotate(2deg);
+        .hand-tile, .draft-btn {
+            width: var(--hand-card-w); /* 기존 대비 1.5배 */
+            height: var(--hand-card-h); /* 기존 대비 1.5배 */
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem; /* 텍스트 크기도 확장 */
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            color: var(--text-white);
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            transform: translateY(0);
+        }
+        
+        .draft-btn {
+            font-size: 1.5rem;
+            color: var(--text-white);
+            border-radius: 12px;
+            padding: 0; 
+            border: 2px solid var(--gold);
+        }
+
+        .hand-tile:hover, .draft-btn:hover {
+            transform: translateY(-20px) scale(1.1) rotate(2deg);
             box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 25px var(--gold-glow);
             filter: brightness(1.2);
             z-index: 10;
         }
 
-        .hand-tile.red { 
+        .hand-tile.red, .draft-btn.red { 
             background: var(--red-tile); 
-            border-color: rgba(255,255,255,0.4);
+            border: 2px solid rgba(255,255,255,0.4);
         }
-        .hand-tile.black { 
-            background: var(--slate-gray); 
-            border-color: var(--gold);
-        }
-
-        .opp-card-mini {
-            width: 45px;
-            height: 65px;
-            border-radius: 8px;
-            border: 2px solid var(--gold);
-            background: var(--slate-gray);
-            opacity: 0.8;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+        .hand-tile.black, .draft-btn.black { 
+            background: var(--black-tile); 
+            border: 2px solid var(--border-gray);
         }
 
-        /* Controls & Messages */
-        #status-message {
-            text-align: center;
-            font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
-            color: var(--gold);
-            margin-bottom: 45px;
-            min-height: 2em;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.9);
-            letter-spacing: 3px;
+        /* 하단 컨트롤 레이아웃 정렬 */
+        .controls { 
+            display: flex; 
+            justify-content: center; 
+            flex-shrink: 0;
+            min-height: 60px;
+            align-items: center;
+            width: 100%; /* 하단 플레이어 컨트롤 정중앙 강제 */
         }
-
-        .controls { display: flex; justify-content: center; margin-top: 30px; }
         
         #start-btn {
-            padding: 22px 70px;
-            font-family: 'Cinzel', serif;
-            font-size: 1.6rem;
+            padding: 2.5dvh 6vw;
+            font-family: inherit;
+            font-size: clamp(1.2rem, 2.5vh, 1.6rem);
             background: var(--gold);
             color: var(--scoreboard-bg);
             border: none;
             border-radius: 50px;
             cursor: pointer;
             font-weight: 800;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--gold-glow);
-            letter-spacing: 3px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 20px var(--gold-glow);
         }
 
         #start-btn:hover {
-            transform: scale(1.1) translateY(-5px);
+            transform: scale(1.05) translateY(-5px);
             box-shadow: 0 25px 50px var(--gold-glow);
             background: #fff;
         }
@@ -305,30 +371,32 @@
     </style>
 </head>
 <body>
-    <h1>DOUBLES PLAN</h1>
+    <!-- 2. 게임 요소의 온전한 한국어화 -->
+    <h1>더블즈 플랜</h1>
     
     <div id="game-container">
         <header>
             <div class="player-info">
-                <div>PLAYER</div>
+                <div>플레이어</div>
                 <div id="player-score" class="score">0</div>
             </div>
-            <div id="set-info">SET 1 / 4</div>
+            <div id="set-info">1세트 / 4</div>
             <div class="player-info">
-                <div>AI STRATEGIST</div>
+                <div>인공지능 전략가</div>
                 <div id="ai-score" class="score">0</div>
             </div>
         </header>
 
-        <div id="status-message">PREPARE FOR THE DUEL</div>
-
-        <div id="opponent-info">
-            <!-- AI cards icons -->
+        <div id="top-info-area">
+            <div id="status-message">대결을 준비하세요</div>
+            <div id="opponent-info">
+                <!-- AI cards icons -->
+            </div>
         </div>
 
         <div id="battle-area">
             <div class="battle-slot">
-                <span>AI STRATEGIST</span>
+                <span>인공지능 전략가</span>
                 <div id="ai-tile-container" class="tile-3d" style="visibility:hidden;">
                     <div class="tile-face tile-front" id="ai-tile-front">?</div>
                     <div class="tile-face tile-back"></div>
@@ -336,7 +404,7 @@
             </div>
             
             <div class="battle-slot">
-                <span>PLAYER</span>
+                <span>플레이어</span>
                 <div id="player-tile-container" class="tile-3d" style="visibility:hidden;">
                     <div class="tile-face tile-front" id="player-tile-front">?</div>
                     <div class="tile-face tile-back"></div>
@@ -349,7 +417,7 @@
         </div>
 
         <div class="controls">
-            <button id="start-btn">COMMENCE GAME</button>
+            <button id="start-btn">게임 시작</button>
         </div>
     </div>
 
